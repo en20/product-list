@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import data from './data/data.json';
 import Modal from './Modal';
 
 function App() {
-  const [cartCounts, setCartCounts] = useState(new Array(data.length).fill(0)); 
+  const [cartCounts, setCartCounts] = useState(new Array(data.length + 20).fill(0)); 
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [fakeStoreProducts, setFakeStoreProducts] = useState([]);
 
   const handleAddToCart = (index) => {
     const newCartCounts = [...cartCounts];
@@ -36,7 +37,14 @@ const handleRemoveItem = (index) => {
 
   setSelectedProductIds(selectedProductIds.filter(id => id !== index));
 };
-const totalOrderPrice = cartCounts.reduce((acc, count, index) => acc + count * data[index].price, 0);
+const totalOrderPrice = cartCounts.reduce((acc, count, index) => {
+  if (index < data.length) {
+    return acc + count * data[index].price;
+  } else {
+    const fakeStoreIndex = index - data.length;
+    return acc + count * (fakeStoreProducts[fakeStoreIndex]?.price || 0);
+  }
+}, 0);
 
 const handleSubmitOrder = (e) => {
   e.preventDefault()
@@ -50,9 +58,32 @@ const selectedProducts = data.filter((_, index) => cartCounts[index] > 0);
 const handleModalClose = () => {
   setShowModal(false);
   setOrderPlaced(false);
-  setCartCounts(new Array(data.length).fill(0)); 
+  setCartCounts(new Array(data.length + 20).fill(0)); 
   setSelectedProductIds([]);
 }
+
+useEffect(() => {
+  // Primeiro, vamos buscar as categorias
+  fetch('https://fakestoreapi.com/products/categories')
+    .then(response => response.json())
+    .then(categories => {
+      // Depois, buscamos os produtos
+      fetch('https://fakestoreapi.com/products')
+        .then(response => response.json())
+        .then(data => {
+          const formattedProducts = data.map(product => ({
+            id: `fakestore-${product.id}`,
+            name: product.title.length > 25 ? product.title.substring(0, 25) + '...' : product.title,
+            price: product.price,
+            image: product.image,
+            category: product.category.charAt(0).toUpperCase() + product.category.slice(1), // Capitalize primeira letra
+            quantity: 1
+          }))
+          setFakeStoreProducts(formattedProducts)
+        })
+    })
+}, [])
+
   return (
     <div>
       <div className='flex flex-col md:flex-row justify-center w-full gap-2 xl:gap-1 items-start'>
@@ -63,7 +94,7 @@ const handleModalClose = () => {
               <ul key={index}>
                 <li >
                   <div className='relative'>
-                  <img className={`list ${cartCounts[index] > 0  ? "  outline outline-2 outline-orange-700 rounded-xl" : ""} w-fit md:w-48 lg:w-52 xl:w-64 rounded-xl`} src={product.image.desktop} alt={product.name} />
+                  <img className={`list ${cartCounts[index] > 0  ? "  outline outline-2 outline-orange-700 rounded-xl" : ""} w-64 h-64 object-contain rounded-xl`} src={product.image.desktop} alt={product.name} />
                   <div className='absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-full flex justify-center'>
                     {cartCounts[index] > 0 ? (
                       <div className={`list ${cartCounts[index] > 0 ? "bg-orange-700 " : "bg-white"} border   w-fit flex justify-center items-center text-center mx-auto gap-7 rounded-full px-5 py-2`}>
@@ -97,6 +128,52 @@ const handleModalClose = () => {
               </ul>
             ))}
           </div>
+
+          <h1 className='font-bold text-3xl mb-5 mt-10'>Store Products</h1>
+          <div className='flex flex-wrap gap-7 w-full relative'>
+            {fakeStoreProducts.map((product, idx) => {
+              const index = idx + data.length;
+              return (
+                <ul key={product.id}>
+                  <li>
+                    <div className='relative'>
+                      <img 
+                        className={`list ${cartCounts[index] > 0 ? "outline outline-2 outline-orange-700 rounded-xl" : ""} w-64 h-64 object-contain rounded-xl`} 
+                        src={product.image} 
+                        alt={product.name} 
+                      />
+                      <div className='absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-full flex justify-center'>
+                        {cartCounts[index] > 0 ? (
+                          <div className={`list ${cartCounts[index] > 0 ? "bg-orange-700" : "bg-white"} border w-fit flex justify-center items-center text-center mx-auto gap-7 rounded-full px-5 py-2`}>
+                            <div onClick={() => handleDecrease(index)} className='text-center group cursor-pointer flex justify-center items-center'>
+                              <img className='text-red-600 border w-5 h-5 p-1 rounded-full' src="./assets/images/icon-decrement-quantity.svg" alt="decrease" />
+                            </div>
+                            <span className='text-white'>{cartCounts[index]}</span>
+                            <div onClick={() => handleIncrease(index)} className='p-1 text-center group cursor-pointer flex justify-center items-center'>
+                              <img className='text-red-600 border p-1 w-5 h-5 rounded-full' src="./assets/images/icon-increment-quantity.svg" alt="increase" />
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleAddToCart(index)}
+                            className={`list ${cartCounts[index] > 0 ? "bg-orange-700" : "bg-white"} border border-orange-500 transition-all duration-30 hover:text-orange-700 flex justify-center items-center gap-2 text-center mx-auto rounded-full px-5 py-2`}
+                          >
+                            <img src="./assets/images/icon-add-to-cart.svg" alt="add to cart" />
+                            Add to Cart
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className='mt-7'>
+                      <p style={{ opacity: '0.7' }}>{product.category}</p>
+                      <p>{product.name}</p>
+                      <p className='text-orange-500 font-bold'>${product.price.toFixed(2)}</p>
+                    </div>
+                  </li>
+                </ul>
+              );
+            })}
+          </div>
         </div>
 
         <div className='bg-white p-6 rounded-lg h-auto w-full md:w-[45%] lg:w-[30%]'>
@@ -112,29 +189,65 @@ const handleModalClose = () => {
             <div className='divide-y-2'>
               {data.map((product, index) => 
                 cartCounts[index] > 0 && (
-                  <div className='divide-y-2  mb-4'>
-                  <div key={index} >
-                    <p>{product.name}</p>
-                    <div className='flex justify-between items-center'>
-                      <div className='flex justify-between gap-3'>
-                      <span className='text-orange-500 font-semibold'>x{cartCounts[index]}</span>
-                      <span className='text-red-900'>@ ${product.price.toFixed(2)}</span>
-                      <span className='text-red-900 font-semibold'>${(product.price * cartCounts[index]).toFixed(2)}</span>
+                  <div className='divide-y-2 mb-4' key={index}>
+                    <div>
+                      <p>{product.name}</p>
+                      <div className='flex justify-between items-center'>
+                        <div className='flex justify-between gap-3'>
+                          <span className='text-orange-500 font-semibold'>x{cartCounts[index]}</span>
+                          <span className='text-red-900'>@ ${product.price.toFixed(2)}</span>
+                          <span className='text-red-900 font-semibold'>${(product.price * cartCounts[index]).toFixed(2)}</span>
+                        </div>
+                        <img 
+                          className='p-1 outline outline-1 outline-red-900 rounded-full cursor-pointer' 
+                          onClick={() => handleRemoveItem(index)} 
+                          src="./assets/images/icon-remove-item.svg" 
+                          alt="icon-remove-item" 
+                        />
+                      </div>
                     </div>
-                    <img className='p-1 outline outline-1 outline-red-900 rounded-full cursor-pointer' onClick={() => {handleRemoveItem(index)}} src="./assets/images/icon-remove-item.svg" alt="icon-remove-item" />
-                  </div>
-                  </div>
                   </div>
                 )
               )}
-               <div className='flex justify-between  items-center'>
-                 <span className='mt-10'>Order Total</span> <span className='mt-10 font-bold text-xl'> ${totalOrderPrice.toFixed(2)}</span>
+              
+              {fakeStoreProducts.map((product, idx) => {
+                const index = idx + data.length;
+                return cartCounts[index] > 0 && (
+                  <div className='divide-y-2 mb-4' key={product.id}>
+                    <div>
+                      <p>{product.name}</p>
+                      <div className='flex justify-between items-center'>
+                        <div className='flex justify-between gap-3'>
+                          <span className='text-orange-500 font-semibold'>x{cartCounts[index]}</span>
+                          <span className='text-red-900'>@ ${product.price.toFixed(2)}</span>
+                          <span className='text-red-900 font-semibold'>${(product.price * cartCounts[index]).toFixed(2)}</span>
+                        </div>
+                        <img 
+                          className='p-1 outline outline-1 outline-red-900 rounded-full cursor-pointer' 
+                          onClick={() => handleRemoveItem(index)} 
+                          src="./assets/images/icon-remove-item.svg" 
+                          alt="icon-remove-item" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              <div className='flex justify-between items-center'>
+                <span className='mt-10'>Order Total</span>
+                <span className='mt-10 font-bold text-xl'>${totalOrderPrice.toFixed(2)}</span>
               </div>
               <div className='bg-orange-50 flex justify-center mt-10 p-2 gap-1 rounded-lg'>
                 <img src="./assets/images/icon-carbon-neutral.svg" alt="icon-carbon-neutral" />
                 <span>This is a carbon-neutral delivery</span>
               </div>
-              <button className='bg-orange-700 w-full p-3 mt-6 rounded-full text-white' onClick={handleSubmitOrder}>Confirm Order</button>
+              <button 
+                className='bg-orange-700 w-full p-3 mt-6 rounded-full text-white' 
+                onClick={handleSubmitOrder}
+              >
+                Confirm Order
+              </button>
             </div>
           )}
         </div>
