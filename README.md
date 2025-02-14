@@ -105,20 +105,10 @@ Recursos Úteis
 
 ## Author
 
-- Website - [Add your name here](https://www.your-site.com)
-- Frontend Mentor - [@yourusername](https://www.frontendmentor.io/profile/yourusername)
-- Twitter - [@yourusername](https://www.twitter.com/yourusername)
+Enzo Lozano
 
-**Note: Delete this note and add/remove/edit lines above based on what links you'd like to share.**
+GitHub - @en20
 
-Autor
-
-Website - Adicionar nome aqui
-
-Frontend Mentor - @yourusername
-
-GitHub - @yourusername
-**Note: Delete this note and edit this section's content as necessary. If you completed this challenge by yourself, feel free to delete this section entirely.**
 
 
 
