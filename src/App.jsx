@@ -81,8 +81,8 @@ useEffect(() => {
 }, [])
 
   return (
-    <div>
-      <div className='flex flex-col md:flex-row justify-center w-full  items-start'>
+    <div className="min-h-screen">
+      <div className='flex flex-col md:flex-row justify-center w-full max-w-[1600px] mx-auto px-6 gap-8'>
         <div className='flex flex-col justify-center md:w-3/5'>
           <h1 className='font-bold text-3xl mb-5'>Desserts</h1>
           <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3   w-full'>
@@ -174,8 +174,8 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className='bg-white p-6 rounded-lg h-auto w-full md:w-[45%] lg:w-[30%]'>
-          <h1 className='text-orange-500 font-bold mb-6'>
+        <div className='bg-white p-6 rounded-lg w-full md:w-[45%] lg:w-[30%] md:sticky md:top-6 mt-[52px] h-fit'>
+          <h1 className='text-orange-500 font-bold mb-6 text-[30px]'>
             Your Cart ({cartCounts.reduce((acc, count) => acc + count, 0)})
           </h1>
           {cartCounts.every(count => count === 0) ? (
