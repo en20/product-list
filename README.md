@@ -1,6 +1,6 @@
 # Frontend Mentor - Product list with cart solution
 
-This is a solution to the [Product list with cart challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/product-list-with-cart-5MmqLVAp_d). Frontend Mentor challenges help you improve your coding skills by building realistic projects. 
+Este projeto foi desenvolvido como parte do desafio do Frontend Mentor, mas adaptado para atender aos requisitos do teste prático de Desenvolvedor(a) Front-End Shopify e Integrações. O desafio original do Frontend Mentor não exigia o uso da FakeStore API, mas como esse era um requisito do teste prático, fiz a mescla dos dois. Assim, além dos produtos que já existiam no desafio da plataforma, adicionei uma nova categoria de produtos utilizando a FakeStore API. 
 
 ## Table of contents
 
@@ -22,14 +22,21 @@ This is a solution to the [Product list with cart challenge on Frontend Mentor](
 
 ### The challenge
 
-Users should be able to:
+O Desafio
 
-- Add items to the cart and remove them
-- Increase/decrease the number of items in the cart
-- See an order confirmation modal when they click "Confirm Order"
-- Reset their selections when they click "Start New Order"
-- View the optimal layout for the interface depending on their device's screen size
-- See hover and focus states for all interactive elements on the page
+Os usuários devem ser capazes de:
+
+Adicionar itens ao carrinho e removê-los
+
+Aumentar/diminuir a quantidade de itens no carrinho
+
+Ver um modal de confirmação do pedido ao clicar em "Confirmar Pedido"
+
+Redefinir suas seleções ao clicar em "Iniciar Novo Pedido"
+
+Visualizar o layout ideal da interface, dependendo do tamanho da tela do dispositivo
+
+Ver os estados de foco e hover para todos os elementos interativos da página
 
 ### Screenshot
 
@@ -52,35 +59,28 @@ Then crop/optimize/edit your image however you like, add it to your project, and
 
 ### Built with
 
-- Semantic HTML5 markup
+- HTML5 semântico
 - CSS custom properties
 - Flexbox
 - CSS Grid
 - Mobile-first workflow
-- [React](https://reactjs.org/) - JS library
-- [Next.js](https://nextjs.org/) - React framework
-- [Styled Components](https://styled-components.com/) - For styles
+- TailwindCSS
+- FakeStore API - API utilizada para buscar produtos adicionais
 
 **Note: These are just examples. Delete this note and replace the list above with your own choices**
 
 ### What I learned
 
-Use this section to recap over some of your major learnings while working through this project. Writing these out and providing code samples of areas you want to highlight is a great way to reinforce your own knowledge.
+O que Aprendi
 
-To see how you can add code snippets, see below:
+Neste projeto, aprimorei minhas habilidades ao integrar uma API externa e organizar os dados dentro da aplicação. A divisão dos produtos em categorias permitiu uma experiência mais rica para o usuário.
+
+Exemplo de consumo da FakeStore API:
 
 ```html
-<h1>Some HTML code I'm proud of</h1>
-```
-```css
-.proud-of-this-css {
-  color: papayawhip;
-}
-```
-```js
-const proudOfThisFunc = () => {
-  console.log('🎉')
-}
+fetch('https://fakestoreapi.com/products')
+  .then(res => res.json())
+  .then(data => console.log(data));
 ```
 
 If you want more help with writing markdown, we'd recommend checking out [The Markdown Guide](https://www.markdownguide.org/) to learn more.
@@ -95,8 +95,11 @@ Use this section to outline areas that you want to continue focusing on in futur
 
 ### Useful resources
 
-- [Example resource 1](https://www.example.com) - This helped me for XYZ reason. I really liked this pattern and will use it going forward.
-- [Example resource 2](https://www.example.com) - This is an amazing article which helped me finally understand XYZ. I'd recommend it to anyone still learning this concept.
+Recursos Úteis
+
+- FakeStore API Docs - Documentação da API utilizada
+
+- Vite Documentation - Documentação do Vite para otimização do build
 
 **Note: Delete this note and replace the list above with resources that helped you during the challenge. These could come in handy for anyone viewing your solution or for yourself when you look back on this project in the future.**
 
@@ -108,10 +111,13 @@ Use this section to outline areas that you want to continue focusing on in futur
 
 **Note: Delete this note and add/remove/edit lines above based on what links you'd like to share.**
 
-## Acknowledgments
+Autor
 
-This is where you can give a hat tip to anyone who helped you out on this project. Perhaps you worked in a team or got some inspiration from someone else's solution. This is the perfect place to give them some credit.
+Website - Adicionar nome aqui
 
+Frontend Mentor - @yourusername
+
+GitHub - @yourusername
 **Note: Delete this note and edit this section's content as necessary. If you completed this challenge by yourself, feel free to delete this section entirely.**
 
 
