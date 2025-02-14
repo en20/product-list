@@ -1,66 +1,94 @@
-import React from "react";
+import PropTypes from 'prop-types';
 import data from './data/data.json';
 import "./Modal.css";
 
-
 function Modal({ show, onClose, selectedProducts, cartCounts, totalOrderPrice }) {
-  if (!show) {
-    return null;
-  }
+  if (!show) return null;
+
+  const getProductQuantity = (product, index) => {
+    const isStoreProduct = 'id' in product && product.id.startsWith('fakestore-');
+    if (isStoreProduct) {
+      const storeIndex = parseInt(product.id.split('-')[1]) - 1;
+      return cartCounts[storeIndex + data.length];
+    }
+    // Para produtos desserts
+    const dessertIndex = data.findIndex(item => item.name === product.name);
+    return cartCounts[dessertIndex];
+  };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content w-[450px] p-6 rounded-lg my-10 mt-5 mb-5">
-        <div style={{ textAlign: "start" }} >
-            <img className="w-10" src="./assets/images/icon-order-confirmed.svg" alt="icon-order-confirmed" />
-            <h1 className="text-3xl font-bold mt-4 mb-2">Order confirmed</h1>
-            <p className="mb-6 text-red-800">We hope you enjoy your food!</p>
-            <div className="bg-orange-50 py-5 rounded-lg">
-                {selectedProducts.map((product) => {
-                    const originalIndex = data.findIndex((item) => item.name === product.name); 
-                        return (
-                            <div className="flex justify-between items-center  p-2 rounded-lg mb-1" key={product.name}> 
-                            <div className="flex items-center  gap-3">
-                                <img className="w-10 h-10 rounded-md" src={product.image.thumbnail} alt={product.image.name} />
-                                <div className="flex flex-col">
-                                <span className="">{product.name}</span>
-                                <div className="flex gap-2">
-                                    <span className=" text-orange-500">{cartCounts[originalIndex]}x</span>  
-                                    <span className="text-red-900">@ ${product.price.toFixed(2)}</span>
-                                </div>
-                                </div>
-                            </div>
-                            <div>
-                                <span className="text-red-900 font-semibold">${(cartCounts[originalIndex] * product.price).toFixed(2)}</span>  
-                            </div>
-                            </div>
-                        );
-                    })}
-                     <div className="flex justify-between items-center px-2 mt-5">
-                        <span className="font-bold">Order Total</span>
-                        <span className="font-bold">${totalOrderPrice.toFixed(2)}</span>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg max-w-md w-full my-8">
+        <div className="max-h-[80vh] overflow-y-auto">
+          <img 
+            className="mx-auto mb-4" 
+            src="./assets/images/icon-order-confirmed.svg" 
+            alt="order confirmed" 
+          />
+          <h2 className="text-2xl font-bold mb-4">Order Confirmed!</h2>
+          <p className="text-gray-600 mb-6">Your order has been confirmed. You will receive an email confirmation shortly.</p>
+          
+          <div className="divide-y">
+            {selectedProducts.map((product, index) => {
+              const isStoreProduct = 'id' in product && product.id.startsWith('fakestore-');
+              const quantity = getProductQuantity(product, index);
+              
+              return (
+                <div key={isStoreProduct ? product.id : index} className="py-4">
+                  <div className="flex items-center gap-4">
+                    <img 
+                      src={isStoreProduct ? product.image : product.image.desktop} 
+                      alt={product.name}
+                      className="w-16 h-16 object-contain rounded-lg"
+                    />
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold">{product.name}</p>
+                          <p className="text-sm text-gray-500">{product.category}</p>
+                        </div>
+                        <p className="font-bold text-orange-500">
+                          ${(product.price * quantity).toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600 mt-2">
+                        <span className="bg-orange-100 px-2 py-1 rounded-full">
+                          x{quantity}
+                        </span>
+                        <span>@ ${product.price.toFixed(2)} each</span>
+                      </div>
                     </div>
+                  </div>
                 </div>
+              );
+            })}
+            
+            <div className="py-4">
+              <div className="flex justify-between font-bold text-lg">
+                <span>Order Total</span>
+                <span className="text-orange-500">${totalOrderPrice.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div
-          className="modal-button"
-          style={{
-            marginTop: "2em",
-            display: "flex",
-            justifyContent: "center",
-            gap: "1em",
-          }}
+
+        <button
+          onClick={onClose}
+          className="w-full bg-orange-700 text-white py-3 rounded-full mt-6 hover:bg-orange-800 transition-colors"
         >
-          <button
-            onClick={onClose}
-            className="modal-button bg-orange-700 w-full rounded-full"
-          >
-            Start new Order
-          </button>
-        </div>
+          Continue Shopping
+        </button>
       </div>
     </div>
   );
 }
+
+Modal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  selectedProducts: PropTypes.array.isRequired,
+  cartCounts: PropTypes.array.isRequired,
+  totalOrderPrice: PropTypes.number.isRequired
+};
 
 export default Modal;

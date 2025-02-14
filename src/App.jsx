@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import data from './data/data.json';
 import Modal from './Modal';
 
@@ -53,7 +53,10 @@ const handleSubmitOrder = (e) => {
   //setCartCounts([])
 
 }
-const selectedProducts = data.filter((_, index) => cartCounts[index] > 0);
+const selectedProducts = [
+  ...data.filter((_, index) => cartCounts[index] > 0),
+  ...fakeStoreProducts.filter((_, idx) => cartCounts[idx + data.length] > 0)
+];
 
 const handleModalClose = () => {
   setShowModal(false);
@@ -63,114 +66,109 @@ const handleModalClose = () => {
 }
 
 useEffect(() => {
-  // Primeiro, vamos buscar as categorias
-  fetch('https://fakestoreapi.com/products/categories')
+  fetch('https://fakestoreapi.com/products')
     .then(response => response.json())
-    .then(categories => {
-      // Depois, buscamos os produtos
-      fetch('https://fakestoreapi.com/products')
-        .then(response => response.json())
-        .then(data => {
-          const formattedProducts = data.map(product => ({
-            id: `fakestore-${product.id}`,
-            name: product.title.length > 25 ? product.title.substring(0, 25) + '...' : product.title,
-            price: product.price,
-            image: product.image,
-            category: product.category.charAt(0).toUpperCase() + product.category.slice(1), // Capitalize primeira letra
-            quantity: 1
-          }))
-          setFakeStoreProducts(formattedProducts)
-        })
+    .then(data => {
+      const formattedProducts = data.map(product => ({
+        id: `fakestore-${product.id}`,
+        name: product.title.length > 25 ? product.title.substring(0, 25) + '...' : product.title,
+        price: product.price,
+        image: product.image,
+        quantity: 1
+      }))
+      setFakeStoreProducts(formattedProducts)
     })
 }, [])
 
   return (
     <div>
-      <div className='flex flex-col md:flex-row justify-center w-full gap-2 xl:gap-1 items-start'>
-        <div className='flex flex-col justify-center md:w-3/4'>
+      <div className='flex flex-col md:flex-row justify-center w-full  items-start'>
+        <div className='flex flex-col justify-center md:w-3/5'>
           <h1 className='font-bold text-3xl mb-5'>Desserts</h1>
-          <div className='flex flex-wrap  gap-7 w-full relative'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3   w-full'>
             {data.map((product, index) => (
-              <ul key={index}>
-                <li >
-                  <div className='relative'>
-                  <img className={`list ${cartCounts[index] > 0  ? "  outline outline-2 outline-orange-700 rounded-xl" : ""} w-64 h-64 object-contain rounded-xl`} src={product.image.desktop} alt={product.name} />
-                  <div className='absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-full flex justify-center'>
+              <div key={index} className="rounded-xl">
+                <div className='relative w-64 h-64'>
+                  <img 
+                    className={`w-64 h-64 object-cover rounded-xl ${cartCounts[index] > 0 ? "outline outline-2 outline-orange-700" : ""}`}
+                    src={product.image.desktop}
+                    alt={product.name}
+                  />
+                  <div className='absolute -bottom-5 left-0 right-0 px-4'>
                     {cartCounts[index] > 0 ? (
-                      <div className={`list ${cartCounts[index] > 0 ? "bg-orange-700 " : "bg-white"} border   w-fit flex justify-center items-center text-center mx-auto gap-7 rounded-full px-5 py-2`}>
-                       <div onClick={() => handleDecrease(index)} className='text-center group cursor-pointer flex justify-center items-center'>
-                        <img  className='text-red-600 border w-5 h-5 p-1 rounded-full' src="./assets/images/icon-decrement-quantity.svg" alt="decrease" />
+                      <div className="bg-orange-700 w-48 flex justify-center items-center text-center mx-auto gap-7 rounded-full px-5 py-2">
+                        <div onClick={() => handleDecrease(index)} className='text-center group cursor-pointer flex justify-center items-center'>
+                          <img className='text-red-600 border w-5 h-5 p-1 rounded-full' src="./assets/images/icon-decrement-quantity.svg" alt="decrease" />
                         </div>
                         <span className='text-white'>{cartCounts[index]}</span>
-                        <div onClick={() => handleIncrease(index)}  className='p-1 text-center group cursor-pointer flex justify-center items-center'>
-                        <img  className='text-red-600 border p-1 w-5 h-5 rounded-full  ' src="./assets/images/icon-increment-quantity.svg" alt="increase" />
-                      </div>
+                        <div onClick={() => handleIncrease(index)} className='p-1 text-center group cursor-pointer flex justify-center items-center'>
+                          <img className='text-red-600 border p-1 w-5 h-5 rounded-full' src="./assets/images/icon-increment-quantity.svg" alt="increase" />
+                        </div>
                       </div>
                     ) : (
-                      <>
                       <button
                         onClick={() => handleAddToCart(index)}
-                        className={`list ${cartCounts[index] > 0 ? "bg-orange-700 " : "bg-white"} border border-orange-500 transition-all duration-30 hover:text-orange-700 flex justify-center items-center gap-2 text-center mx-auto  rounded-full px-5 py-2`}
+                        className="w-48 mx-auto bg-white border border-orange-500 hover:bg-orange-50 transition-colors duration-300 flex items-center justify-center gap-2 rounded-full px-5 py-2 shadow-md"
                       >
                         <img src="./assets/images/icon-add-to-cart.svg" alt="add to cart" />
-                           Add to Cart
-                        </button>
-                      </>
+                        Add to Cart
+                      </button>
                     )}
-                    </div>
                   </div>
-                  <div className='mt-7'>
-                    <p style={{ opacity: '0.7' }}>{product.category}</p>
-                    <p>{product.name}</p>
-                    <p className='text-orange-500 font-bold'>${product.price.toFixed(2)}</p>
-                  </div>
-                </li>
-              </ul>
+                </div>
+                <div className='pt-8 pb-4 w-64'>
+                  <p className='text-gray-500 text-sm'>{product.category}</p>
+                  <p className='font-semibold text-lg mt-1'>{product.name}</p>
+                  <p className='text-orange-500 font-bold text-xl mt-2'>
+                    ${product.price.toFixed(2)}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
 
           <h1 className='font-bold text-3xl mb-5 mt-10'>Store Products</h1>
-          <div className='flex flex-wrap gap-7 w-full relative'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3  w-full '>
             {fakeStoreProducts.map((product, idx) => {
               const index = idx + data.length;
               return (
-                <ul key={product.id}>
-                  <li>
-                    <div className='relative'>
-                      <img 
-                        className={`list ${cartCounts[index] > 0 ? "outline outline-2 outline-orange-700 rounded-xl" : ""} w-64 h-64 object-contain rounded-xl`} 
-                        src={product.image} 
-                        alt={product.name} 
-                      />
-                      <div className='absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-full flex justify-center'>
-                        {cartCounts[index] > 0 ? (
-                          <div className={`list ${cartCounts[index] > 0 ? "bg-orange-700" : "bg-white"} border w-fit flex justify-center items-center text-center mx-auto gap-7 rounded-full px-5 py-2`}>
-                            <div onClick={() => handleDecrease(index)} className='text-center group cursor-pointer flex justify-center items-center'>
-                              <img className='text-red-600 border w-5 h-5 p-1 rounded-full' src="./assets/images/icon-decrement-quantity.svg" alt="decrease" />
-                            </div>
-                            <span className='text-white'>{cartCounts[index]}</span>
-                            <div onClick={() => handleIncrease(index)} className='p-1 text-center group cursor-pointer flex justify-center items-center'>
-                              <img className='text-red-600 border p-1 w-5 h-5 rounded-full' src="./assets/images/icon-increment-quantity.svg" alt="increase" />
-                            </div>
+                <div key={product.id} className="rounded-xl relative">
+                  <div className='relative'>
+                    <img 
+                      className={`w-full h-72 object-contain rounded-xl ${cartCounts[index] > 0 ? "outline outline-2 outline-orange-700" : ""}`}
+                      src={product.image} 
+                      alt={product.name} 
+                    />
+                    <div className='absolute -bottom-5 left-0 right-0 px-4'>
+                      {cartCounts[index] > 0 ? (
+                        <div className="bg-orange-700 w-48 flex justify-center items-center text-center mx-auto gap-7 rounded-full px-5 py-2">
+                          <div onClick={() => handleDecrease(index)} className='text-center group cursor-pointer flex justify-center items-center'>
+                            <img className='text-red-600 border w-5 h-5 p-1 rounded-full' src="./assets/images/icon-decrement-quantity.svg" alt="decrease" />
                           </div>
-                        ) : (
-                          <button
-                            onClick={() => handleAddToCart(index)}
-                            className={`list ${cartCounts[index] > 0 ? "bg-orange-700" : "bg-white"} border border-orange-500 transition-all duration-30 hover:text-orange-700 flex justify-center items-center gap-2 text-center mx-auto rounded-full px-5 py-2`}
-                          >
-                            <img src="./assets/images/icon-add-to-cart.svg" alt="add to cart" />
-                            Add to Cart
-                          </button>
-                        )}
-                      </div>
+                          <span className='text-white'>{cartCounts[index]}</span>
+                          <div onClick={() => handleIncrease(index)} className='p-1 text-center group cursor-pointer flex justify-center items-center'>
+                            <img className='text-red-600 border p-1 w-5 h-5 rounded-full' src="./assets/images/icon-increment-quantity.svg" alt="increase" />
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleAddToCart(index)}
+                          className="w-48 mx-auto bg-white border border-orange-500 hover:bg-orange-50 transition-colors duration-300 flex items-center justify-center gap-2 rounded-full px-5 py-2 shadow-md"
+                        >
+                          <img src="./assets/images/icon-add-to-cart.svg" alt="add to cart" />
+                          Add to Cart
+                        </button>
+                      )}
                     </div>
-                    <div className='mt-7'>
-                      <p style={{ opacity: '0.7' }}>{product.category}</p>
-                      <p>{product.name}</p>
-                      <p className='text-orange-500 font-bold'>${product.price.toFixed(2)}</p>
-                    </div>
-                  </li>
-                </ul>
+                  </div>
+                  <div className='pt-8 pb-4 w-64'>
+                    <p className='text-gray-500 text-sm'>Store Product</p>
+                    <p className='font-semibold text-lg mt-1'>{product.name}</p>
+                    <p className='text-orange-500 font-bold text-xl mt-2'>
+                      ${product.price.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
